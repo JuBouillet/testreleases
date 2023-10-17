@@ -1,0 +1,35 @@
+name: "Terraform Deploy plan apply"
+on:
+  registry_package:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  Terraform-plan:
+    name: "Terraform init-plan-apply"
+    runs-on: ["self-hosted", "Linux", "prd", "azure","lz", "infra"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # - name: install terraform
+      #   uses: hashicorp/setup-terraform@v2
+
+      - name: setup initstate env
+        run: |
+          if [[ $GITHUB_BASE_REF = "" ]]; then
+            echo "branchname=$GITHUB_REF_NAME" >> $GITHUB_ENV
+          else
+            echo "branchname=$GITHUB_BASE_REF" >> $GITHUB_ENV
+          fi  
+
+      - name: check env and setup credentials
+        run: |
+          envFromRelease=$(echo "${{ github.event.release.name }}" | grep -oP '(?<=-)[a-zA-Z]+' | tr '[:upper:]' '[:lower:]')
+          echo "env is $envFromRelease"
+          if [[ "$envFromRelease" = "prd" || "$envFromRelease" = "test" ]]; then
+            echo "envname=$envFromRelease" >> $GITHUB_ENV
+          else
+            echo "envname=dev" >> $GITHUB_ENV
+          fi
+          echo "env name is ${{ env.envname }}"
