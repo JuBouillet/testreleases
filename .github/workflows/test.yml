@@ -7,7 +7,7 @@ on:
 jobs:
   Terraform-plan:
     name: "Terraform init-plan-apply"
-    runs-on: ["self-hosted", "Linux", "prd", "azure","lz", "infra"]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
